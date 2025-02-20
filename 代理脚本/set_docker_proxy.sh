@@ -3,8 +3,7 @@
 #********************************************************************
 #Author:            l00n9
 #********************************************************************
-# source set_proxy.sh start
-# source set_proxy.sh stop
+
 
 PROXY_SERVER_IP=10.0.0.1
 PROXY_PORT=7890
@@ -35,29 +34,36 @@ color () {
 }
 
 start () {
-    export http_proxy=$PROXY_SERVER_IP:$PROXY_PORT
-    export https_proxy=$PROXY_SERVER_IP:$PROXY_PORT
-    export ftp_proxy=$PROXY_SERVER_IP:$PROXY_PORT
-
+    [ -d /etc/systemd/system/docker.service.d ] || mkdir -p /etc/systemd/system/docker.service.d
+    cat >> /etc/systemd/system/docker.service.d/http-proxy.conf <<EOF
+[Service]
+Environment="HTTP_PROXY=http://${PROXY_SERVER_IP}:${PROXY_PORT}/"
+Environment="HTTPS_PROXY=http://${PROXY_SERVER_IP}:${PROXY_PORT}/"
+Environment="NO_PROXY=127.0.0.0/8,172.17.0.0/16,10.0.0.0/24,10.244.0.0/16,192.168.0.0/16,wang.org,cluster.local"
+EOF
+    systemctl daemon-reload
+    systemctl restart docker.service
+    systemctl is-active docker.service &> /dev/null
     if [ $? -eq 0 ] ;then 
-        color "代理配置完成!" 0  
+        color "Docker 服务代理配置完成!" 0  
     else
-        color "代理配置失败!" 1
+        color "Docker 服务代理配置失败!" 1
     exit 1
-    fi  
+    fi   
 }
 
 stop () {
-    unset http_proxy
-    unset https_proxy
-    unset ftp_proxy
-    
+    rm -f /etc/systemd/system/docker.service.d/http-proxy.conf
+    systemctl daemon-reload
+    systemctl restart docker.service 
+    systemctl is-active docker.service &> /dev/null 
     if [ $? -eq 0 ] ;then
-        color "代理取消完成!" 0    
+        color "Docker 服务代理取消完成!" 0    
     else
-        color "代理取消失败!" 1
+        color "Docker 服务代理取消失败!" 1
     exit 1
     fi
+   
 }
 
 usage () {
