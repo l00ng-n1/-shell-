@@ -38,6 +38,7 @@ start () {
     export http_proxy=$PROXY_SERVER_IP:$PROXY_PORT
     export https_proxy=$PROXY_SERVER_IP:$PROXY_PORT
     export ftp_proxy=$PROXY_SERVER_IP:$PROXY_PORT
+    export NO_PROXY=".l00n9.icu,10.0.0.0/24,10.244.0.0/16,10.96.0.0/12"
 
     if [ $? -eq 0 ] ;then 
         color "代理配置完成!" 0  
