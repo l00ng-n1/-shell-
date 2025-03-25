@@ -6,7 +6,7 @@
 # source set_proxy.sh start
 # source set_proxy.sh stop
 
-PROXY_SERVER_IP=10.0.0.1
+PROXY_SERVER_IP=http://10.0.0.1
 PROXY_PORT=7890
 #PROXY_PORT=10808
 
@@ -52,6 +52,7 @@ stop () {
     unset http_proxy
     unset https_proxy
     unset ftp_proxy
+    unset NO_PROXY
     
     if [ $? -eq 0 ] ;then
         color "代理取消完成!" 0    
